@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  producer:
+    build:
+      args:
+        - MAIN_FILE_PATH=./cmd
+        - OUT_FILE=/bin/producer
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+  consumer:
+    build:
+      args:
+        - MAIN_FILE_PATH=./consumer
+        - OUT_FILE=/bin/consumer
+    deploy:
+      replicas: 1
+    depends_on:
+      - redis
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
