@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/marcelom97/go-redis-message-queue/producer"
@@ -28,25 +30,37 @@ type PublishResponse struct {
 }
 
 func (h ProducerHandler) Produce(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
 	ctx := r.Context()
 
 	var b PublishRequest
+	var unmarshalErr *json.UnmarshalTypeError
 
-	err := json.NewDecoder(r.Body).Decode(&b)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&b)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.As(err, &unmarshalErr) {
+			errorResponse(w, fmt.Sprintf("Bad Request. Wrong Type provided for field: %s", unmarshalErr.Field), http.StatusBadRequest)
+			return
+		}
+		errorResponse(w, fmt.Sprintf("Bad Request: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	err = h.producer.Produce(ctx, b.Message)
 	if err != nil {
-		json.NewEncoder(w).Encode(PublishErrorResponse{
-			Error: "something went wrong",
-		})
+		errorResponse(w, fmt.Sprintf("Something went wrong: %s", err.Error()), http.StatusBadRequest)
+		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(PublishRequest{
 		Message: "Message was published successfully!",
 	})
+}
+
+func errorResponse(w http.ResponseWriter, message string, httpStatusCode int) {
+	w.WriteHeader(httpStatusCode)
+	json.NewEncoder(w).Encode(PublishErrorResponse{Error: message})
 }
