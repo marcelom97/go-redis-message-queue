@@ -3,7 +3,7 @@ package producer
 import (
 	"context"
 
-	"github.com/marcelom97/go-redis-message-queue/queue"
+	"github.com/marcelom97/go-redis-message-queue/internal/queue"
 )
 
 type Producer struct {

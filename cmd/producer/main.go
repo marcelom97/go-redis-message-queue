@@ -8,13 +8,14 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
-	"github.com/marcelom97/go-redis-message-queue/producer"
-	"github.com/marcelom97/go-redis-message-queue/queue"
+	"github.com/marcelom97/go-redis-message-queue/internal/handlers"
+	"github.com/marcelom97/go-redis-message-queue/internal/producer"
+	"github.com/marcelom97/go-redis-message-queue/internal/queue"
 )
 
-type PingResponse struct {
-	Message string `json:"message"`
-}
+const (
+	streamName = "stream1"
+)
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -30,11 +31,9 @@ func main() {
 		log.Fatalf("Unable to connect to Redis: %s", err.Error())
 	}
 
-	streamName := "stream1"
-
 	queue := queue.NewQueue(client, streamName)
 	producer := producer.NewProducer(queue)
-	producerHandler := NewProducerHandler(producer)
+	producerHandler := handlers.NewProducerHandler(producer)
 
 	r := mux.NewRouter()
 

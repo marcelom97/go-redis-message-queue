@@ -1,12 +1,13 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
-	"github.com/marcelom97/go-redis-message-queue/producer"
+	"github.com/marcelom97/go-redis-message-queue/internal/producer"
 )
 
 type ProducerHandler struct {
@@ -44,6 +45,15 @@ func (h ProducerHandler) Produce(w http.ResponseWriter, r *http.Request) {
 			errorResponse(w, fmt.Sprintf("Bad Request. Wrong Type provided for field: %s", unmarshalErr.Field), http.StatusBadRequest)
 			return
 		}
+		if err == io.EOF {
+			errorResponse(w, "Bad Request: message is required", http.StatusBadRequest)
+			return
+		}
+		errorResponse(w, fmt.Sprintf("Bad Request: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	if err = validateBody(b); err != nil {
 		errorResponse(w, fmt.Sprintf("Bad Request: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
@@ -63,4 +73,11 @@ func (h ProducerHandler) Produce(w http.ResponseWriter, r *http.Request) {
 func errorResponse(w http.ResponseWriter, message string, httpStatusCode int) {
 	w.WriteHeader(httpStatusCode)
 	json.NewEncoder(w).Encode(PublishErrorResponse{Error: message})
+}
+
+func validateBody(b PublishRequest) error {
+	if b.Message == "" {
+		return errors.New("message is required")
+	}
+	return nil
 }

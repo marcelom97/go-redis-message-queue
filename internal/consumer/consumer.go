@@ -1,14 +1,12 @@
-package main
+package consumer
 
 import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/marcelom97/go-redis-message-queue/queue"
+	"github.com/marcelom97/go-redis-message-queue/internal/queue"
 )
 
 type Consumer struct {
@@ -50,30 +48,4 @@ func (c Consumer) StartConsuming(ctx context.Context) error {
 func (c Consumer) Consumed(ctx context.Context, messageId string) error {
 	err := c.queue.Confirm(ctx, c.consumersGroup, messageId)
 	return err
-}
-
-func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	client := redis.NewClient(&redis.Options{
-		Addr:        "redis:6379",
-		DialTimeout: 20 * time.Second,
-	})
-
-	err := client.Ping(ctx).Err()
-	if err != nil {
-		log.Fatal("Unable to connect to Redis: ", err)
-	}
-
-	log.Println("Connected to Redis server")
-
-	streamName := "stream1"
-	consumersGroup := "consumer-group-1"
-	q := queue.NewQueue(client, streamName)
-
-	q.CreateConsumerGroup(ctx, consumersGroup)
-
-	consumer := NewConsumer(q, consumersGroup)
-	consumer.StartConsuming(ctx)
 }

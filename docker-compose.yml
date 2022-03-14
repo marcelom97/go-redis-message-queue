@@ -4,7 +4,7 @@ services:
   producer:
     build:
       args:
-        - MAIN_FILE_PATH=./cmd
+        - MAIN_FILE_PATH=./cmd/producer
         - OUT_FILE=/bin/producer
     ports:
       - "8000:8000"
@@ -13,7 +13,7 @@ services:
   consumer:
     build:
       args:
-        - MAIN_FILE_PATH=./consumer
+        - MAIN_FILE_PATH=./cmd/consumer
         - OUT_FILE=/bin/consumer
     deploy:
       replicas: 1
