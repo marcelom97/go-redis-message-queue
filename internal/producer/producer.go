@@ -15,6 +15,5 @@ func NewProducer(queue *queue.Queue) *Producer {
 }
 
 func (p Producer) Produce(ctx context.Context, message string) error {
-	err := p.queue.Publish(ctx, message)
-	return err
+	return p.queue.Publish(ctx, message)
 }

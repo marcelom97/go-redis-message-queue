@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   producer:
@@ -16,7 +16,7 @@ services:
         - MAIN_FILE_PATH=./cmd/consumer
         - OUT_FILE=/bin/consumer
     deploy:
-      replicas: 1
+      replicas: 3
     depends_on:
       - redis
   redis:

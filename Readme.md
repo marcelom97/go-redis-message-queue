@@ -4,7 +4,7 @@
 
 - Golang
 - Redis streams
-- Docker
+- Docker & Docker Compose
 
 This application demonstrates a simple producer / consumer stream.
 
@@ -29,4 +29,16 @@ deploy:
 flowchart LR;
     A[Producer]-->B[Redis];
     C[Consumer]-->B[Redis];
+    D[Consumer]-->B[Redis];
+    E[Consumer]-->B[Redis];
+```
+
+### Producing messages
+
+You can publish messages by doing POST requests on `localhost:8000/produce`
+
+Example:
+
+```bash
+curl -X POST localhost:8000/produce -d '{"message": "Hello from terminal"}'
 ```

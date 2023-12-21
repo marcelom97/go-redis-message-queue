@@ -24,7 +24,7 @@ type QueueHandler interface {
 }
 
 func (q Queue) Publish(ctx context.Context, message string) error {
-	err := q.client.XAdd(ctx, &redis.XAddArgs{
+	return q.client.XAdd(ctx, &redis.XAddArgs{
 		Stream: q.streamName,
 		ID:     "*",
 		Values: map[string]interface{}{
@@ -32,7 +32,6 @@ func (q Queue) Publish(ctx context.Context, message string) error {
 			"message": message,
 		},
 	}).Err()
-	return err
 }
 
 func (q Queue) Consume(ctx context.Context, consumerId string, consumersGroup string) ([]redis.XStream, error) {
@@ -51,11 +50,9 @@ func (q Queue) Consume(ctx context.Context, consumerId string, consumersGroup st
 }
 
 func (q Queue) Confirm(ctx context.Context, consumersGroup string, messageId string) error {
-	err := q.client.XAck(ctx, q.streamName, consumersGroup, messageId).Err()
-	return err
+	return q.client.XAck(ctx, q.streamName, consumersGroup, messageId).Err()
 }
 
 func (q Queue) CreateConsumerGroup(ctx context.Context, consumersGroup string) error {
-	err := q.client.XGroupCreateMkStream(ctx, q.streamName, consumersGroup, "0").Err()
-	return err
+	return q.client.XGroupCreateMkStream(ctx, q.streamName, consumersGroup, "0").Err()
 }

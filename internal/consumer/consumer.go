@@ -46,6 +46,5 @@ func (c Consumer) StartConsuming(ctx context.Context) error {
 }
 
 func (c Consumer) Consumed(ctx context.Context, messageId string) error {
-	err := c.queue.Confirm(ctx, c.consumersGroup, messageId)
-	return err
+	return c.queue.Confirm(ctx, c.consumersGroup, messageId)
 }
