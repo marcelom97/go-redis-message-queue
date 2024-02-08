@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine as build
+FROM golang:1.22-alpine as build
 
 ARG MAIN_FILE_PATH
 ARG OUT_FILE

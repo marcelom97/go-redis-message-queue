@@ -1,11 +1,11 @@
 module github.com/marcelom97/go-redis-message-queue
 
-go 1.21
+go 1.22
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.5.0
-	github.com/gorilla/mux v1.8.1
+		github.com/gorilla/mux v1.8.1
 )
 
 require (
