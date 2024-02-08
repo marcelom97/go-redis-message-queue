@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/gorilla/mux"
 	"github.com/marcelom97/go-redis-message-queue/internal/handlers"
 	"github.com/marcelom97/go-redis-message-queue/internal/producer"
 	"github.com/marcelom97/go-redis-message-queue/internal/queue"
@@ -35,9 +34,9 @@ func main() {
 	producer := producer.NewProducer(queue)
 	producerHandler := handlers.NewProducerHandler(producer)
 
-	r := mux.NewRouter()
+	r := http.NewServeMux()
 
-	r.HandleFunc("/produce", producerHandler.Produce).Methods("POST")
+	r.HandleFunc("POST /produce", producerHandler.Produce)
 	http.Handle("/", r)
 
 	log.Fatal(http.ListenAndServe(":8000", nil))
